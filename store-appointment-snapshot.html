@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>预约项目快照 - 微动</title>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background-color: #f0f2f5;
+            font-size: 14px;
+            color: #333;
+            overflow: hidden;
+        }
+
+        /* 顶部导航 */
+        .top-header {
+            height: 48px;
+            background: #001529;
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            justify-content: space-between;
+        }
+
+        .logo {
+            color: #fff;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .top-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            color: rgba(255,255,255,0.85);
+        }
+
+        .top-right i {
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .user-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #1890ff;
+        }
+
+        /* 主体布局 */
+        .main-container {
+            display: flex;
+            height: calc(100vh - 48px);
+        }
+
+        /* 左侧菜单 */
+        .sidebar {
+            width: 200px;
+            background: #001529;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .menu-item {
+            height: 40px;
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            color: rgba(255,255,255,0.65);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .menu-item:hover {
+            color: #fff;
+        }
+
+        .menu-item.active {
+            background: #1890ff;
+            color: #fff;
+        }
+
+        .menu-item i {
+            margin-right: 10px;
+            font-size: 16px;
+        }
+
+        .menu-item .arrow {
+            margin-left: auto;
+            font-size: 12px;
+            transition: transform 0.3s;
+        }
+
+        .menu-item.expanded .arrow {
+            transform: rotate(180deg);
+        }
+
+        .has-submenu {
+            position: relative;
+        }
+
+        .has-submenu .arrow {
+            display: block;
+        }
+
+        .submenu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            padding-left: 50px;
+        }
+
+        .submenu.open {
+            max-height: 500px;
+        }
+
+        .submenu-item {
+            height: 36px;
+            display: flex;
+            align-items: center;
+            color: rgba(255,255,255,0.65);
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .submenu-item:hover, .submenu-item.active {
+            color: #fff;
+        }
+
+        .menu-link {
+            color: inherit;
+            text-decoration: none;
+            width: 100%;
+        }
+
+        /* 右侧内容 */
+        .content {
+            flex: 1;
+            overflow: auto;
+            padding: 16px;
+            background-color: #f0f2f5;
+        }
+
+        /* 面包屑 */
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            color: #666;
+        }
+
+        .breadcrumb i {
+            font-size: 16px;
+        }
+
+        .breadcrumb span {
+            color: #999;
+        }
+
+        /* 标签页 */
+        .tabs-container {
+            background: #fff;
+            border-radius: 2px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 2px 0 rgba(0,0,0,0.03), 0 1px 6px -1px rgba(0,0,0,0.02), 0 2px 4px 0 rgba(0,0,0,0.02);
+        }
+
+        .tabs-header {
+            display: flex;
+            border-bottom: 1px solid #e8e8e8;
+            padding: 0 8px;
+        }
+
+        .tab-item {
+            padding: 10px 16px;
+            cursor: pointer;
+            color: #666;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            font-size: 13px;
+        }
+
+        .tab-item.active {
+            color: #1890ff;
+            border-bottom-color: #1890ff;
+        }
+
+        .tab-item:hover {
+            color: #1890ff;
+        }
+
+        .btn {
+            height: 32px;
+            padding: 0 12px;
+            border-radius: 2px;
+            cursor: pointer;
+            border: 1px solid #d9d9d9;
+            background: #fff;
+            transition: all 0.2s;
+            font-size: 13px;
+            line-height: 30px;
+            color: #666;
+        }
+
+        .btn:hover {
+            border-color: #40a9ff;
+            color: #40a9ff;
+        }
+
+        .btn-primary {
+            background: #1890ff;
+            color: #fff;
+            border-color: #1890ff;
+        }
+
+        .btn-primary:hover {
+            background: #40a9ff;
+            border-color: #40a9ff;
+            color: #fff;
+        }
+
+        /* ===== 筛选区域 ===== */
+        .filter-section {
+            background: #fff;
+            padding: 16px;
+            border-radius: 2px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 2px 0 rgba(0,0,0,0.03), 0 1px 6px -1px rgba(0,0,0,0.02), 0 2px 4px 0 rgba(0,0,0,0.02);
+        }
+
+        .filter-date-picker {
+            height: 32px;
+            padding: 0 10px;
+            border: 1px solid #d9d9d9;
+            border-radius: 2px;
+            cursor: pointer;
+            color: #666;
+            font-size: 13px;
+            background: #fff;
+            transition: all 0.2s;
+            line-height: 30px;
+        }
+
+        .filter-date-picker:hover {
+            border-color: #40a9ff;
+            color: #40a9ff;
+        }
+
+        .filter-date-picker:focus {
+            outline: none;
+            border-color: #1890ff;
+            box-shadow: 0 0 0 2px rgba(24,144,255,0.1);
+        }
+
+        .filter-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .filter-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .filter-label {
+            width: 80px;
+            color: #666;
+            flex-shrink: 0;
+            font-size: 13px;
+            line-height: 32px;
+        }
+
+        .filter-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            flex: 1;
+        }
+
+        .filter-tag {
+            padding: 3px 11px;
+            border-radius: 2px;
+            cursor: pointer;
+            color: #666;
+            transition: all 0.2s;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .filter-tag:hover {
+            color: #40a9ff;
+        }
+
+        .filter-tag.active {
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+
+        .filter-tag.more {
+            color: #1890ff;
+            border-color: transparent;
+        }
+
+        .filter-tag.more:hover {
+            border-color: #1890ff;
+        }
+
+        .filter-select {
+            height: 32px;
+            border: 1px solid #d9d9d9;
+            border-radius: 2px;
+            padding: 0 12px;
+            color: #666;
+            font-size: 13px;
+            background: #fff;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 140px;
+        }
+
+        .filter-select:hover {
+            border-color: #40a9ff;
+            color: #40a9ff;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: #1890ff;
+            box-shadow: 0 0 0 2px rgba(24,144,255,0.1);
+        }
+
+        .filter-actions {
+            margin-left: auto;
+            display: flex;
+            gap: 8px;
+        }
+
+        /* ===== 表格区域 ===== */
+        .table-section {
+            background: #fff;
+            padding: 16px;
+            border-radius: 2px;
+            box-shadow: 0 1px 2px 0 rgba(0,0,0,0.03), 0 1px 6px -1px rgba(0,0,0,0.02), 0 2px 4px 0 rgba(0,0,0,0.02);
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1400px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 8px;
+            text-align: center;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        .data-table th:last-child,
+        .data-table td:last-child {
+            padding-right: 16px;
+        }
+
+        .data-table th {
+            background: #fafafa;
+            color: #666;
+            font-weight: 500;
+            position: sticky;
+            top: 0;
+        }
+
+        .data-table th:first-child {
+            text-align: left;
+            padding-left: 16px;
+        }
+
+        .data-table td:first-child {
+            text-align: left;
+            padding-left: 16px;
+        }
+
+        .data-table tbody tr:hover {
+            background: #f5f7fa;
+        }
+
+        /* 快照只读状态图标 */
+        .snapshot-status {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .snapshot-status .ri-checkbox-circle-fill {
+            color: #52c41a;
+            font-size: 16px;
+        }
+
+        .snapshot-status .ri-close-circle-fill {
+            color: #d9d9d9;
+            font-size: 16px;
+        }
+
+        .help-icon {
+            color: #999;
+            font-size: 13px;
+            cursor: help;
+            margin-left: 2px;
+        }
+
+        /* 门店预约列状态 */
+        .snapshot-appointment-open {
+            color: #52c41a;
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 2px;
+            background: #f6ffed;
+            border: 1px solid #b7eb8f;
+        }
+
+        .snapshot-appointment-close {
+            color: #999;
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 2px;
+            background: #f5f5f5;
+            border: 1px solid #d9d9d9;
+        }
+
+        /* 无快照提示 */
+        .no-snapshot {
+            text-align: center;
+            padding: 60px 0;
+            color: #999;
+        }
+
+        .no-snapshot i {
+            font-size: 48px;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .no-snapshot p {
+            font-size: 14px;
+        }
+
+        /* 滚动条美化 */
+        .content::-webkit-scrollbar,
+        .table-section::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .content::-webkit-scrollbar-thumb,
+        .table-section::-webkit-scrollbar-thumb {
+            background: #d9d9d9;
+            border-radius: 3px;
+        }
+
+        .data-table tbody tr {
+            transition: background 0.15s;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <div class="top-header">
+        <div class="logo">WEID微动</div>
+        <div class="top-right">
+            <i class="ri-fullscreen-line"></i>
+            <i class="ri-search-line"></i>
+            <i class="ri-star-line"></i>
+            <div class="user-info">
+                <div class="user-avatar"></div>
+                <span>阿文</span>
+                <i class="ri-arrow-down-s-line"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主体 -->
+    <div class="main-container">
+        <!-- 左侧菜单 -->
+        <div id="sidebar"></div>
+
+        <!-- 右侧内容 -->
+        <div class="content">
+            <!-- 面包屑 -->
+            <div class="breadcrumb">
+                <i class="ri-menu-line"></i>
+                <span>首页</span>
+                <span>/</span>
+                <span>门店</span>
+                <span>/</span>
+                <span>门店列表</span>
+            </div>
+
+            <!-- 标签页 - 由 sidebar-menu.js 动态渲染 -->
+            <div id="page-tabs" class="tabs-container"></div>
+
+            <!-- 筛选区域 -->
+            <div class="filter-section">
+                <div class="filter-row">
+                    <span class="filter-label">日期：</span>
+                    <input type="date" class="filter-date-picker" id="filter-date-picker">
+                </div>
+                <div class="filter-row">
+                    <span class="filter-label">城市：</span>
+                    <div class="filter-options" id="city-filters">
+                        <span class="filter-tag active" data-city="全部">全部</span>
+                        <span class="filter-tag" data-city="上海市">上海市</span>
+                        <span class="filter-tag" data-city="厦门市">厦门市</span>
+                        <span class="filter-tag" data-city="南京市">南京市</span>
+                        <span class="filter-tag" data-city="泉州市">泉州市</span>
+                        <span class="filter-tag" data-city="武汉市">武汉市</span>
+                        <span class="filter-tag" data-city="杭州市">杭州市</span>
+                        <span class="filter-tag" data-city="广州市">广州市</span>
+                        <span class="filter-tag more">展开</span>
+                    </div>
+                </div>
+                <div class="filter-row">
+                    <span class="filter-label">门店名称：</span>
+                    <div class="filter-options" id="store-filters">
+                        <span class="filter-tag active" data-store="全部">全部</span>
+                        <span class="filter-tag" data-store="上海徐汇店">上海徐汇店</span>
+                        <span class="filter-tag" data-store="厦门思明店">厦门思明店</span>
+                        <span class="filter-tag" data-store="南京秦淮轻医美店">南京秦淮轻医美店</span>
+                        <span class="filter-tag" data-store="泉州丰泽店">泉州丰泽店</span>
+                        <span class="filter-tag" data-store="武汉光谷店">武汉光谷店</span>
+                        <span class="filter-tag" data-store="杭州下城店">杭州下城店</span>
+                        <span class="filter-tag" data-store="广州天河店">广州天河店</span>
+                        <span class="filter-tag more">展开</span>
+                    </div>
+                </div>
+                <div class="filter-row">
+                    <span class="filter-label">预约状态：</span>
+                    <select class="filter-select" id="project-filter">
+                        <option value="">请选择项目</option>
+                    </select>
+                    <select class="filter-select" id="status-filter">
+                        <option value="">请选择状态</option>
+                        <option value="可预约">可预约</option>
+                        <option value="不可预约">不可预约</option>
+                    </select>
+                    <div class="filter-actions">
+                        <button class="btn" id="btn-reset">重置</button>
+                        <button class="btn btn-primary" id="btn-search"><i class="ri-search-line"></i> 搜索</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 表格区域 -->
+            <div class="table-section">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>门店名称</th>
+                            <th>门店预约 <i class="ri-question-line help-icon"></i></th>
+                            <th>S10 <i class="ri-question-line help-icon"></i></th>
+                            <th>M10 <i class="ri-question-line help-icon"></i></th>
+                            <th>半永久女 <i class="ri-question-line help-icon"></i></th>
+                            <th>半永久男 <i class="ri-question-line help-icon"></i></th>
+                            <th>K10 <i class="ri-question-line help-icon"></i></th>
+                            <th>K20 <i class="ri-question-line help-icon"></i></th>
+                            <th>K30 <i class="ri-question-line help-icon"></i></th>
+                            <th>S10N <i class="ri-question-line help-icon"></i></th>
+                            <th>S10N1 <i class="ri-question-line help-icon"></i></th>
+                            <th>S10Y <i class="ri-question-line help-icon"></i></th>
+                            <th>S20 <i class="ri-question-line help-icon"></i></th>
+                            <th>S30 <i class="ri-question-line help-icon"></i></th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                        <!-- 动态渲染 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="sidebar-menu.js"></script>
+    <script>
+        // ===== 基础门店数据 =====
+        const baseStoreData = [
+            { id: 1, name: '上海徐汇店', city: '上海市' },
+            { id: 2, name: '厦门思明店', city: '厦门市' },
+            { id: 3, name: '南京秦淮轻医美店', city: '南京市' },
+            { id: 4, name: '泉州丰泽店', city: '泉州市' },
+            { id: 5, name: '武汉光谷店', city: '武汉市' },
+            { id: 6, name: '杭州下城店', city: '杭州市' },
+            { id: 7, name: '广州天河店', city: '广州市' },
+            { id: 8, name: '重庆江北店', city: '重庆市' },
+            { id: 9, name: '青岛市北店', city: '青岛市' },
+            { id: 10, name: '西安中贸店', city: '西安市' },
+            { id: 11, name: '北京朝阳店', city: '北京市' },
+            { id: 12, name: '天津和平店', city: '天津市' },
+            { id: 13, name: '成都锦江店', city: '成都市' },
+            { id: 14, name: '深圳罗湖店', city: '深圳市' }
+        ];
+
+        const projectNames = ['S10', 'M10', '半永久女', '半永久男', 'K10', 'K20', 'K30', 'S10N', 'S10N1', 'S10Y', 'S20', 'S30'];
+
+        // 基础预约配置（2026-03-31 的初始状态）
+        // 每个门店有 appointment(门店预约总开关) + 各项目的预约状态
+        const baseAppointment = {
+            1:  { appointment: true,  S10: true,  M10: false, '半永久女': false, '半永久男': false, K10: true,  K20: true,  K30: true,  S10N: true,  S10N1: true,  S10Y: true,  S20: true,  S30: true },
+            2:  { appointment: true,  S10: true,  M10: false, '半永久女': true,  '半永久男': false, K10: false, K20: false, K30: false, S10N: true,  S10N1: true,  S10Y: true,  S20: true,  S30: true },
+            3:  { appointment: true,  S10: true,  M10: false, '半永久女': false, '半永久男': false, K10: false, K20: false, K30: false, S10N: true,  S10N1: true,  S10Y: true,  S20: true,  S30: true },
+            4:  { appointment: false, S10: false, M10: false, '半永久女': false, '半永久男': false, K10: false, K20: false, K30: false, S10N: true,  S10N1: true,  S10Y: true,  S20: true,  S30: true },
+            5:  { appointment: true,  S10: false, M10: false, '半永久女': false, '半永久男': false, K10: false, K20: false, K30: false, S10N: true,  S10N1: true,  S10Y: true,  S20: true,  S30: true },
+            6:  { appointment: true,  S10: false, M10: false, '半永久女': false, '半永久男': false, K10: false, K20: false, K30: false, S10N: true,  S10N1: true,  S10Y: true,  S20: true,  S30: true },
+            7:  { appointment: true,  S10: true,  M10: false, '半永久女': false, '半永久男': false, K10: true,  K20: true,  K30: true,  S10N: true,  S10N1: true,  S10Y: true,  S20: true,  S30: true },
+            8:  { appointment: false, S10: false, M10: false, '半永久女': false, '半永久男': false, K10: false, K20: false, K30: false, S10N: true,  S10N1: true,  S10Y: true,  S20: true,  S30: true },
+            9:  { appointment: true,  S10: false, M10: false, '半永久女': false, '半永久男': false, K10: false, K20: false, K30: false, S10N: true,  S10N1: true,  S10Y: true,  S20: true,  S30: true },
+            10: { appointment: false, S10: false, M10: false, '半永久女': false, '半永久男': false, K10: false, K20: false, K30: false, S10N: true,  S10N1: true,  S10Y: true,  S20: true,  S30: true },
+            11: { appointment: true,  S10: true,  M10: true,  '半永久女': false, '半永久男': false, K10: false, K20: false, K30: false, S10N: true,  S10N1: true,  S10Y: true,  S20: true,  S30: true },
+            12: { appointment: true,  S10: true,  M10: false, '半永久女': false, '半永久男': false, K10: false, K20: false, K30: false, S10N: true,  S10N1: true,  S10Y: true,  S20: true,  S30: true },
+            13: { appointment: false, S10: false, M10: false, '半永久女': false, '半永久男': false, K10: false, K20: false, K30: false, S10N: true,  S10N1: true,  S10Y: true,  S20: true,  S30: true },
+            14: { appointment: true,  S10: true,  M10: false, '半永久女': false, '半永久男': false, K10: false, K20: false, K30: false, S10N: true,  S10N1: true,  S10Y: true,  S20: true,  S30: true }
+        };
+
+        // 生成模拟快照数据（最近7天，每天在前一天基础上随机变更2-3项）
+        function generateSnapshots() {
+            const snapshots = {};
+            const today = new Date('2026-04-06');
+            let prevData = JSON.parse(JSON.stringify(baseAppointment));
+
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                const dateStr = formatDate(date);
+
+                // 深拷贝前一天数据
+                const todayData = JSON.parse(JSON.stringify(prevData));
+
+                // 每天随机变更 2~3 个门店的 1~2 个项目（包括门店预约开关）
+                const changes = 2 + Math.floor(Math.random() * 2);
+                for (let c = 0; c < changes; c++) {
+                    const storeId = 1 + Math.floor(Math.random() * 14);
+                    const keys = ['appointment'].concat(projectNames);
+                    const keyIndex = Math.floor(Math.random() * keys.length);
+                    const keyName = keys[keyIndex];
+                    todayData[storeId][keyName] = !todayData[storeId][keyName];
+                }
+
+                // 计算统计
+                let openCount = 0, closeCount = 0;
+                for (let sid = 1; sid <= 14; sid++) {
+                    if (todayData[sid].appointment) openCount++;
+                    else closeCount++;
+                }
+
+                snapshots[dateStr] = {
+                    date: dateStr,
+                    createdAt: dateStr + ' 00:00:15',
+                    stores: todayData,
+                    summary: {
+                        totalStores: 14,
+                        openStores: openCount,
+                        closeStores: closeCount
+                    }
+                };
+
+                prevData = todayData;
+            }
+
+            return snapshots;
+        }
+
+        function formatDate(date) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+
+        // ===== 全局状态 =====
+        let allSnapshots = generateSnapshots();
+        let availableDates = Object.keys(allSnapshots).sort().reverse();
+        let currentDate = availableDates[0];
+        let filterCity = '全部';
+        let filterStore = '全部';
+        let filterProject = '';
+        let filterStatus = '';
+
+        // ===== 筛选区域日期选择 =====
+        function initDatePicker() {
+            const datePicker = document.getElementById('filter-date-picker');
+            const allDates = Object.keys(allSnapshots).sort();
+            if (allDates.length > 0) {
+                datePicker.min = allDates[0];
+                datePicker.max = allDates[allDates.length - 1];
+            }
+            datePicker.value = currentDate;
+
+            datePicker.addEventListener('change', function() {
+                const selected = this.value;
+                if (allSnapshots[selected]) {
+                    currentDate = selected;
+                    renderCurrentSnapshot();
+                }
+            });
+        }
+
+        // ===== 渲染当前快照 =====
+        function renderCurrentSnapshot() {
+            if (!currentDate || !allSnapshots[currentDate]) {
+                document.getElementById('table-body').innerHTML = `
+                    <tr><td colspan="14">
+                        <div class="no-snapshot">
+                            <i class="ri-camera-off-line"></i>
+                            <p>该日期暂无快照数据</p>
+                        </div>
+                    </td></tr>`;
+                return;
+            }
+
+            const currentSnapshot = allSnapshots[currentDate];
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+
+            let displayIndex = 0;
+            baseStoreData.forEach(store => {
+                const data = currentSnapshot.stores[store.id];
+
+                // 应用筛选
+                if (filterCity !== '全部' && store.city !== filterCity) return;
+                if (filterStore !== '全部' && store.name !== filterStore) return;
+                if (filterProject && filterStatus) {
+                    const isOn = data[filterProject];
+                    if (filterStatus === '可预约' && !isOn) return;
+                    if (filterStatus === '不可预约' && isOn) return;
+                }
+
+                displayIndex++;
+                const tr = document.createElement('tr');
+
+                let html = `
+                    <td>${displayIndex}</td>
+                    <td>${store.name}</td>
+                    <td><span class="${data.appointment ? 'snapshot-appointment-open' : 'snapshot-appointment-close'}">${data.appointment ? '开启' : '关闭'}</span></td>
+                `;
+
+                projectNames.forEach(proj => {
+                    const isOn = data[proj];
+                    html += `
+                        <td>
+                            <span class="snapshot-status">
+                                <i class="${isOn ? 'ri-checkbox-circle-fill' : 'ri-close-circle-fill'}"></i>
+                            </span>
+                        </td>
+                    `;
+                });
+
+                tr.innerHTML = html;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // ===== 筛选功能 =====
+        function initFilters() {
+            // 城市筛选
+            const cityFilters = document.querySelectorAll('#city-filters .filter-tag:not(.more)');
+            cityFilters.forEach(tag => {
+                tag.addEventListener('click', function() {
+                    cityFilters.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    filterCity = this.dataset.city;
+                    renderCurrentSnapshot();
+                });
+            });
+
+            // 门店筛选
+            const storeFilters = document.querySelectorAll('#store-filters .filter-tag:not(.more)');
+            storeFilters.forEach(tag => {
+                tag.addEventListener('click', function() {
+                    storeFilters.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    filterStore = this.dataset.store;
+                    renderCurrentSnapshot();
+                });
+            });
+
+            // 项目下拉初始化
+            const projectFilter = document.getElementById('project-filter');
+            projectNames.forEach(proj => {
+                const opt = document.createElement('option');
+                opt.value = proj;
+                opt.textContent = proj;
+                projectFilter.appendChild(opt);
+            });
+
+            // 项目选择变化
+            projectFilter.addEventListener('change', function() {
+                filterProject = this.value;
+                renderCurrentSnapshot();
+            });
+
+            // 预约状态选择变化
+            document.getElementById('status-filter').addEventListener('change', function() {
+                filterStatus = this.value;
+                renderCurrentSnapshot();
+            });
+
+            // 重置按钮
+            document.getElementById('btn-reset').addEventListener('click', function() {
+                filterCity = '全部';
+                filterStore = '全部';
+                filterProject = '';
+                filterStatus = '';
+                cityFilters.forEach(t => t.classList.remove('active'));
+                cityFilters[0].classList.add('active');
+                storeFilters.forEach(t => t.classList.remove('active'));
+                storeFilters[0].classList.add('active');
+                projectFilter.value = '';
+                document.getElementById('status-filter').value = '';
+                renderCurrentSnapshot();
+            });
+
+            // 搜索按钮
+            document.getElementById('btn-search').addEventListener('click', function() {
+                renderCurrentSnapshot();
+            });
+        }
+
+        // ===== 初始化 =====
+        document.addEventListener('DOMContentLoaded', function() {
+            initDatePicker();
+            initFilters();
+            renderCurrentSnapshot();
+        });
+    </script>
+</body>
+</html>
