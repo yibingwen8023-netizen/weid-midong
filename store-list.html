@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>门店列表 - 微动</title>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background-color: #f0f2f5;
+            font-size: 14px;
+            color: #333;
+            overflow: hidden;
+        }
+
+        /* 顶部导航 */
+        .top-header {
+            height: 48px;
+            background: #001529;
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            justify-content: space-between;
+        }
+
+        .logo {
+            color: #fff;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .top-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            color: rgba(255,255,255,0.85);
+        }
+
+        .top-right i {
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .user-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #1890ff;
+        }
+
+        /* 主体布局 */
+        .main-container {
+            display: flex;
+            height: calc(100vh - 48px);
+        }
+
+        /* 左侧菜单 */
+        .sidebar {
+            width: 200px;
+            background: #001529;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .menu-item {
+            height: 40px;
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            color: rgba(255,255,255,0.65);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .menu-item:hover {
+            color: #fff;
+        }
+
+        .menu-item.active {
+            background: #1890ff;
+            color: #fff;
+        }
+
+        .menu-item i {
+            margin-right: 10px;
+            font-size: 16px;
+        }
+
+        .menu-item .arrow {
+            margin-left: auto;
+            font-size: 12px;
+        }
+
+        .submenu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            padding-left: 50px;
+        }
+
+        .submenu.open {
+            max-height: 500px;
+        }
+
+        .submenu-item {
+            height: 36px;
+            display: flex;
+            align-items: center;
+            color: rgba(255,255,255,0.65);
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .submenu-item:hover, .submenu-item.active {
+            color: #fff;
+        }
+
+        .menu-link {
+            color: inherit;
+            text-decoration: none;
+            width: 100%;
+        }
+
+        /* 右侧内容 */
+        .content {
+            flex: 1;
+            overflow: auto;
+            padding: 16px;
+            background-color: #f0f2f5;
+        }
+
+        /* 面包屑 */
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .breadcrumb i {
+            font-size: 16px;
+        }
+
+        .breadcrumb span {
+            color: #999;
+        }
+
+        /* 标签页 */
+        .tabs-container {
+            background: #fff;
+            border-radius: 2px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 2px 0 rgba(0,0,0,0.03), 0 1px 6px -1px rgba(0,0,0,0.02), 0 2px 4px 0 rgba(0,0,0,0.02);
+        }
+
+        .tabs-header {
+            display: flex;
+            border-bottom: 1px solid #e8e8e8;
+            padding: 0 8px;
+        }
+
+        .tab-item {
+            padding: 10px 16px;
+            cursor: pointer;
+            color: #666;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            font-size: 13px;
+        }
+
+        .tab-item.active {
+            color: #1890ff;
+            border-bottom-color: #1890ff;
+        }
+
+        .tab-item:hover {
+            color: #1890ff;
+        }
+
+        /* 筛选区域 */
+        .filter-section {
+            background: #fff;
+            padding: 16px 20px;
+            border-radius: 2px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 2px 0 rgba(0,0,0,0.03), 0 1px 6px -1px rgba(0,0,0,0.02), 0 2px 4px 0 rgba(0,0,0,0.02);
+        }
+
+        .filter-row {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .filter-label {
+            width: 60px;
+            color: #666;
+            flex-shrink: 0;
+            font-size: 13px;
+            line-height: 32px;
+        }
+
+        .filter-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            flex: 1;
+            max-width: calc(100% - 70px);
+        }
+
+        .filter-tag {
+            padding: 3px 11px;
+            border-radius: 2px;
+            cursor: pointer;
+            color: #666;
+            transition: all 0.2s;
+            font-size: 13px;
+            line-height: 1.4;
+            white-space: nowrap;
+        }
+
+        .filter-tag:hover {
+            color: #40a9ff;
+        }
+
+        .filter-tag.active {
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+
+        .filter-tag.more {
+            color: #1890ff;
+            border-color: transparent;
+        }
+
+        /* 搜索输入框 */
+        .search-input-wrapper {
+            position: relative;
+            width: 220px;
+        }
+
+        .search-input {
+            height: 32px;
+            border: 1px solid #d9d9d9;
+            border-radius: 2px;
+            padding: 0 30px 0 11px;
+            color: #666;
+            font-size: 13px;
+            transition: all 0.2s;
+            width: 100%;
+        }
+
+        .search-input:hover {
+            border-color: #40a9ff;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #1890ff;
+            box-shadow: 0 0 0 2px rgba(24,144,255,0.1);
+        }
+
+        .search-input-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            font-size: 14px;
+        }
+
+        /* 按钮 */
+        .btn {
+            height: 32px;
+            padding: 0 15px;
+            border-radius: 2px;
+            cursor: pointer;
+            border: 1px solid #d9d9d9;
+            background: #fff;
+            transition: all 0.2s;
+            font-size: 13px;
+            line-height: 30px;
+            color: #666;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn:hover {
+            border-color: #40a9ff;
+            color: #40a9ff;
+        }
+
+        .btn-primary {
+            background: #1890ff;
+            color: #fff;
+            border-color: #1890ff;
+        }
+
+        .btn-primary:hover {
+            background: #40a9ff;
+            border-color: #40a9ff;
+            color: #fff;
+        }
+
+        .btn-success {
+            background: #52c41a;
+            color: #fff;
+            border-color: #52c41a;
+        }
+
+        .btn-success:hover {
+            background: #73d13d;
+            border-color: #73d13d;
+            color: #fff;
+        }
+
+        /* 表格区域 */
+        .table-section {
+            background: #fff;
+            border-radius: 2px;
+            padding: 16px;
+            box-shadow: 0 1px 2px 0 rgba(0,0,0,0.03), 0 1px 6px -1px rgba(0,0,0,0.02), 0 2px 4px 0 rgba(0,0,0,0.02);
+        }
+
+        .table-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .table-toolbar-left {
+            display: flex;
+            gap: 8px;
+        }
+
+        .table-toolbar-right {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        /* 表格 */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            border-spacing: 0;
+            font-size: 12px;
+            border: 1px solid #e8e8e8;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 10px 6px;
+            text-align: center;
+            border-bottom: 1px solid #e8e8e8;
+            border-right: 1px solid #e8e8e8;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        .data-table th:last-child,
+        .data-table td:last-child {
+            border-right: none;
+        }
+
+        .data-table th {
+            background: #fafafa;
+            font-weight: 500;
+            color: #666;
+            border-bottom: 2px solid #e8e8e8;
+            white-space: nowrap;
+        }
+
+        .data-table tbody tr:hover {
+            background: #f5f5f5;
+        }
+
+        .data-table .checkbox {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            vertical-align: middle;
+        }
+
+        /* 开关样式 */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 36px;
+            height: 20px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #d9d9d9;
+            transition: .3s;
+            border-radius: 20px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px; width: 16px;
+            left: 2px; bottom: 2px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #52c41a;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(16px);
+        }
+
+        /* 状态标签 */
+        .status-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 2px;
+            font-size: 12px;
+            font-weight: 400;
+        }
+
+        .status-open {
+            color: #52c41a;
+            background: #f6ffed;
+            border: 1px solid #b7eb8f;
+        }
+
+        .status-close {
+            color: #f5222d;
+            background: #fff1f0;
+            border: 1px solid #ffa39e;
+        }
+
+        /* 操作链接 */
+        .action-link {
+            color: #1890ff;
+            cursor: pointer;
+            text-decoration: none;
+            margin: 0 3px;
+            font-size: 12px;
+        }
+
+        .action-link:hover {
+            color: #40a9ff;
+        }
+
+        .action-link.danger {
+            color: #f5222d;
+        }
+
+        .action-link.danger:hover {
+            color: #ff4d4f;
+        }
+
+        .action-link.warning {
+            color: #fa8c16;
+        }
+
+        .action-link.warning:hover {
+            color: #ffa940;
+        }
+
+        /* 帮助图标 */
+        .help-icon {
+            color: #bbb;
+            font-size: 12px;
+            margin-left: 2px;
+            cursor: help;
+            vertical-align: middle;
+        }
+
+        /* 分页 */
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .pagination-info {
+            color: #666;
+            font-size: 13px;
+        }
+
+        .pagination-pages {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .page-btn {
+            min-width: 32px;
+            height: 32px;
+            border: 1px solid #d9d9d9;
+            border-radius: 2px;
+            background: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            color: #666;
+            padding: 0 8px;
+            transition: all 0.2s;
+        }
+
+        .page-btn:hover:not(.disabled):not(.active) {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+
+        .page-btn.active {
+            border-color: #1890ff;
+            background: #1890ff;
+            color: #fff;
+        }
+
+        .page-btn.disabled {
+            color: #d9d9d9;
+            cursor: not-allowed;
+        }
+
+        .page-ellipsis {
+            min-width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+        }
+
+        .page-jumper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: 16px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .page-jumper input {
+            width: 48px;
+            height: 32px;
+            border: 1px solid #d9d9d9;
+            border-radius: 2px;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        .page-jumper input:focus {
+            outline: none;
+            border-color: #1890ff;
+        }
+
+        /* 滚动条 */
+        .content::-webkit-scrollbar { width: 6px; height: 6px; }
+        .content::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+        .content::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 3px; }
+        .content::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+        .sidebar::-webkit-scrollbar { width: 4px; }
+        .sidebar::-webkit-scrollbar-track { background: transparent; }
+        .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
+
+        .data-table tbody tr { transition: background-color 0.2s; }
+
+        /* 地址列不换行限制 */
+        .cell-address {
+            max-width: 180px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .cell-phone {
+            font-family: 'Monaco', 'Menlo', monospace;
+            letter-spacing: 0.5px;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <div class="top-header">
+        <div class="logo">WEID微动</div>
+        <div class="top-right">
+            <i class="ri-fullscreen-line"></i>
+            <i class="ri-search-line"></i>
+            <i class="ri-star-line"></i>
+            <div class="user-info">
+                <div class="user-avatar"></div>
+                <span>阿文</span>
+                <i class="ri-arrow-down-s-line"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主体 -->
+    <div class="main-container">
+        <!-- 左侧菜单 -->
+        <div id="sidebar"></div>
+
+        <!-- 右侧内容 -->
+        <div class="content">
+            <!-- 面包屑 -->
+            <div class="breadcrumb">
+                <i class="ri-menu-line"></i>
+                <span>首页</span>
+                <span>/</span>
+                <span>门店</span>
+                <span>/</span>
+                <span style="color:#333;">门店列表</span>
+            </div>
+
+            <!-- 标签页 - 由 sidebar-menu.js 动态渲染 -->
+            <div id="page-tabs" class="tabs-container"></div>
+
+            <!-- 筛选区域 -->
+            <div class="filter-section">
+                <div class="filter-row">
+                    <span class="filter-label">关键词：</span>
+                    <div class="search-input-wrapper">
+                        <input type="text" class="search-input" placeholder="">
+                        <i class="ri-search-line search-input-icon"></i>
+                    </div>
+                </div>
+                <div class="filter-row">
+                    <span class="filter-label">状态：</span>
+                    <div class="filter-options">
+                        <span class="filter-tag active">全部</span>
+                        <span class="filter-tag">启用</span>
+                        <span class="filter-tag">停用</span>
+                    </div>
+                </div>
+                <div class="filter-row">
+                    <span class="filter-label">城市：</span>
+                    <div class="filter-options">
+                        <span class="filter-tag active">全部</span>
+                        <span class="filter-tag">北京</span>
+                        <span class="filter-tag">上海</span>
+                        <span class="filter-tag">广州</span>
+                        <span class="filter-tag">深圳</span>
+                        <span class="filter-tag">天津</span>
+                        <span class="filter-tag">重庆</span>
+                        <span class="filter-tag">石家庄</span>
+                        <span class="filter-tag">唐山</span>
+                        <span class="filter-tag">邯郸市</span>
+                        <span class="filter-tag">保定</span>
+                        <span class="filter-tag">太原</span>
+                        <span class="filter-tag">大同</span>
+                        <span class="filter-tag">长治</span>
+                        <span class="filter-tag">运城</span>
+                        <span class="filter-tag">临汾</span>
+                        <span class="filter-tag">浙江</span>
+                        <span class="filter-tag">沈阳</span>
+                        <span class="filter-tag">大连</span>
+                        <span class="filter-tag">长春</span>
+                        <span class="filter-tag">哈尔滨</span>
+                        <span class="filter-tag">福州</span>
+                        <span class="filter-tag">厦门</span>
+                        <span class="filter-tag">泉州</span>
+                        <span class="filter-tag">南昌</span>
+                        <span class="filter-tag">温州</span>
+                        <span class="filter-tag more">展开</span>
+                    </div>
+                </div>
+                <div class="filter-row">
+                    <span class="filter-label"></span>
+                    <button class="btn btn-primary">搜索</button>
+                    <button class="btn" style="margin-left:8px;">重置</button>
+                    <span style="flex:1;text-align:right;color:#999;font-size:12px;line-height:32px;">自动</span>
+                </div>
+            </div>
+
+            <!-- 表格区域 -->
+            <div class="table-section">
+                <div class="table-toolbar">
+                    <div class="table-toolbar-left">
+                        <button class="btn btn-success"><i class="ri-add-line"></i> 新增门店</button>
+                    </div>
+                    <div class="table-toolbar-right">
+                        <button class="btn"><i class="ri-download-line"></i> 导出</button>
+                    </div>
+                </div>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th style="width:40px;"><input type="checkbox" class="checkbox"></th>
+                            <th style="width:45px;">序号</th>
+                            <th style="width:55px;">ID</th>
+                            <th style="width:90px;">门店名称</th>
+                            <th style="width:50px;">城市</th>
+                            <th style="width:240px;">地址</th>
+                            <th style="width:60px;">负责人</th>
+                            <th style="width:95px;">关联手机号</th>
+                            <th style="width:85px;">联系方式</th>
+                            <th style="width:75px;">营业时间</th>
+                            <th style="width:60px;">营业状态 <i class="ri-question-line help-icon"></i></th>
+                            <th style="width:55px;">门店推广 <i class="ri-question-line help-icon"></i></th>
+                            <th style="width:45px;">抖音 <i class="ri-question-line help-icon"></i></th>
+                            <th style="width:80px;">微信预约预约 <i class="ri-question-line help-icon"></i></th>
+                            <th style="width:55px;">门店接客 <i class="ri-question-line help-icon"></i></th>
+                            <th style="width:60px;">扫码验券 <i class="ri-question-line help-icon"></i></th>
+                            <th style="width:45px;">AI服务 <i class="ri-question-line help-icon"></i></th>
+                            <th style="width:55px;">门店开关 <i class="ri-question-line help-icon"></i></th>
+                            <th style="width:140px;">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input type="checkbox" class="checkbox"></td>
+                            <td>1</td>
+                            <td>6463</td>
+                            <td>南京秦淮店</td>
+                            <td>北京市</td>
+                            <td class="cell-address">-</td>
+                            <td>-</td>
+                            <td class="cell-phone">-</td>
+                            <td class="cell-phone">-</td>
+                            <td>-</td>
+                            <td><span class="status-tag status-open">营业中</span></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td>
+                                <a class="action-link">详情</a>
+                                <a class="action-link warning">修改</a>
+                                <a class="action-link">收款</a>
+                                <a class="action-link danger">服务删除</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox" class="checkbox"></td>
+                            <td>2</td>
+                            <td>6445</td>
+                            <td>小寨幸福里</td>
+                            <td>杭州市西湖区</td>
+                            <td class="cell-address">-</td>
+                            <td>-</td>
+                            <td class="cell-phone">-</td>
+                            <td class="cell-phone">-</td>
+                            <td>1:2</td>
+                            <td><span class="status-tag status-close">停业</span></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td>
+                                <a class="action-link">详情</a>
+                                <a class="action-link warning">修改</a>
+                                <a class="action-link">收款</a>
+                                <a class="action-link danger">服务删除</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox" class="checkbox"></td>
+                            <td>3</td>
+                            <td>6440</td>
+                            <td>享乐码头店</td>
+                            <td>重庆市</td>
+                            <td class="cell-address">-</td>
+                            <td>-</td>
+                            <td class="cell-phone">-</td>
+                            <td class="cell-phone">-</td>
+                            <td>-</td>
+                            <td><span class="status-tag status-open">营业中</span></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td>
+                                <a class="action-link">详情</a>
+                                <a class="action-link warning">修改</a>
+                                <a class="action-link">收款</a>
+                                <a class="action-link danger">服务删除</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox" class="checkbox"></td>
+                            <td>4</td>
+                            <td>6386</td>
+                            <td>杭州西湖区</td>
+                            <td>梅州市</td>
+                            <td class="cell-address">湖南省长沙市岳麓区金星北路大道北段星城大厦1401室</td>
+                            <td>-</td>
+                            <td class="cell-phone">-</td>
+                            <td class="cell-phone">-</td>
+                            <td>18****2813</td>
+                            <td><span class="status-tag status-open">营业中</span></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td>
+                                <a class="action-link">详情</a>
+                                <a class="action-link warning">修改</a>
+                                <a class="action-link">收款</a>
+                                <a class="action-link danger">服务删除</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox" class="checkbox"></td>
+                            <td>5</td>
+                            <td>6336</td>
+                            <td>西湖银泰店</td>
+                            <td>乐山市</td>
+                            <td class="cell-address">四川省乐山市市中区嘉定南路一段15号（嘉州宾馆对面）</td>
+                            <td>-</td>
+                            <td class="cell-phone">-</td>
+                            <td class="cell-phone">-</td>
+                            <td>-</td>
+                            <td><span class="status-tag status-open">营业中</span></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td>
+                                <a class="action-link">详情</a>
+                                <a class="action-link warning">修改</a>
+                                <a class="action-link">收款</a>
+                                <a class="action-link danger">服务删除</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox" class="checkbox"></td>
+                            <td>6</td>
+                            <td>6304</td>
+                            <td>东平宁河店</td>
+                            <td>东莞市</td>
+                            <td class="cell-address">东莞市寮步镇上底村百业大道南侧鼎峰尚境4栋1609号</td>
+                            <td>程亮</td>
+                            <td class="cell-phone">-</td>
+                            <td class="cell-phone">-</td>
+                            <td>-</td>
+                            <td><span class="status-tag status-open">营业中</span></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td>
+                                <a class="action-link">详情</a>
+                                <a class="action-link warning">修改</a>
+                                <a class="action-link">收款</a>
+                                <a class="action-link danger">服务删除</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox" class="checkbox"></td>
+                            <td>7</td>
+                            <td>6253</td>
+                            <td>成都武侯二店</td>
+                            <td>成都市</td>
+                            <td class="cell-address">成都武侯人民南路四段48号泰丰国际大厦1506号</td>
+                            <td>-</td>
+                            <td class="cell-phone">-</td>
+                            <td class="cell-phone">-</td>
+                            <td>-</td>
+                            <td><span class="status-tag status-open">营业中</span></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td>
+                                <a class="action-link">详情</a>
+                                <a class="action-link warning">修改</a>
+                                <a class="action-link">收款</a>
+                                <a class="action-link danger">服务删除</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox" class="checkbox"></td>
+                            <td>8</td>
+                            <td>6232</td>
+                            <td>广州海珠店</td>
+                            <td>广州市</td>
+                            <td class="cell-address">昌岗东路270号昌岗路五号线昌岗站C出口楼上A座</td>
+                            <td>-</td>
+                            <td class="cell-phone">-</td>
+                            <td class="cell-phone">-</td>
+                            <td>-</td>
+                            <td><span class="status-tag status-open">营业中</span></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td>
+                                <a class="action-link">详情</a>
+                                <a class="action-link warning">修改</a>
+                                <a class="action-link">收款</a>
+                                <a class="action-link danger">服务删除</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox" class="checkbox"></td>
+                            <td>9</td>
+                            <td>6231</td>
+                            <td>杭州滨江二店</td>
+                            <td>杭州市</td>
+                            <td class="cell-address">杭州滨江区江南大道与江陵路口星光国际1号楼11-1室</td>
+                            <td>王丽娟</td>
+                            <td class="cell-phone">-</td>
+                            <td class="cell-phone">188****7200</td>
+                            <td>-</td>
+                            <td><span class="status-tag status-open">营业中</span></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td>
+                                <a class="action-link">详情</a>
+                                <a class="action-link warning">修改</a>
+                                <a class="action-link">收款</a>
+                                <a class="action-link danger">服务删除</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox" class="checkbox"></td>
+                            <td>10</td>
+                            <td>6193</td>
+                            <td>新都香槟店</td>
+                            <td>成都市</td>
+                            <td class="cell-address">成都市新都区蓉都大道南三段小9栋、B09、B07室</td>
+                            <td>蔡月霞</td>
+                            <td class="cell-phone">-</td>
+                            <td class="cell-phone">-</td>
+                            <td>-</td>
+                            <td><span class="status-tag status-open">营业中</span></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td>
+                                <a class="action-link">详情</a>
+                                <a class="action-link warning">修改</a>
+                                <a class="action-link">收款</a>
+                                <a class="action-link danger">服务删除</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox" class="checkbox"></td>
+                            <td>11</td>
+                            <td>6228</td>
+                            <td>昆明黑林铺</td>
+                            <td>昆明市</td>
+                            <td class="cell-address">昆明市西</td>
+                            <td>-</td>
+                            <td class="cell-phone">-</td>
+                            <td class="cell-phone">-</td>
+                            <td>06:00~17:00</td>
+                            <td><span class="status-tag status-open">营业中</span></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td>
+                                <a class="action-link">详情</a>
+                                <a class="action-link warning">修改</a>
+                                <a class="action-link">收款</a>
+                                <a class="action-link danger">服务删除</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox" class="checkbox"></td>
+                            <td>12</td>
+                            <td>6228</td>
+                            <td>铜梁县店</td>
+                            <td>重庆市</td>
+                            <td class="cell-address">重庆市铜梁县巴川街道白龙三路115室</td>
+                            <td>左艳琴</td>
+                            <td class="cell-phone">-</td>
+                            <td class="cell-phone">-</td>
+                            <td>10:00~19:00</td>
+                            <td><span class="status-tag status-open">营业中</span></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td>
+                                <a class="action-link">详情</a>
+                                <a class="action-link warning">修改</a>
+                                <a class="action-link">收款</a>
+                                <a class="action-link danger">服务删除</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox" class="checkbox"></td>
+                            <td>13</td>
+                            <td>6223</td>
+                            <td>自贡富顺店</td>
+                            <td>自贡市</td>
+                            <td class="cell-address">重庆市渝北区两路金港商圈大道2267号</td>
+                            <td>-</td>
+                            <td class="cell-phone">-</td>
+                            <td class="cell-phone">-</td>
+                            <td>-</td>
+                            <td><span class="status-tag status-open">营业中</span></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td>
+                                <a class="action-link">详情</a>
+                                <a class="action-link warning">修改</a>
+                                <a class="action-link">收款</a>
+                                <a class="action-link danger">服务删除</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox" class="checkbox"></td>
+                            <td>14</td>
+                            <td>6206</td>
+                            <td>渝北龙湖店</td>
+                            <td>重庆市</td>
+                            <td class="cell-address">渝北龙溪街道宁福大道1025号</td>
+                            <td>-</td>
+                            <td class="cell-phone">-</td>
+                            <td class="cell-phone">-</td>
+                            <td>10:00~19:00</td>
+                            <td><span class="status-tag status-open">营业中</span></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td>
+                                <a class="action-link">详情</a>
+                                <a class="action-link warning">修改</a>
+                                <a class="action-link">收款</a>
+                                <a class="action-link danger">服务删除</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox" class="checkbox"></td>
+                            <td>15</td>
+                            <td>6206</td>
+                            <td>南宁朝阳天</td>
+                            <td>南宁市</td>
+                            <td class="cell-address">南宁市兴宁区民生街道广东大厦15楼1615室</td>
+                            <td>廖万玲</td>
+                            <td class="cell-phone">-</td>
+                            <td class="cell-phone">-</td>
+                            <td>10:00~19:00</td>
+                            <td><span class="status-tag status-open">营业中</span></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox"><span class="slider"></span></label></td>
+                            <td><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></td>
+                            <td>
+                                <a class="action-link">详情</a>
+                                <a class="action-link warning">修改</a>
+                                <a class="action-link">收款</a>
+                                <a class="action-link danger">服务删除</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- 分页 -->
+                <div class="pagination">
+                    <div class="pagination-info">
+                        共 <strong>199</strong> 条
+                    </div>
+                    <div class="pagination-pages">
+                        <div class="page-btn disabled">&lt;</div>
+                        <div class="page-btn active">1</div>
+                        <div class="page-btn">2</div>
+                        <div class="page-btn">3</div>
+                        <div class="page-btn">4</div>
+                        <div class="page-btn">5</div>
+                        <div class="page-ellipsis">...</div>
+                        <div class="page-btn">199</div>
+                        <div class="page-btn">&gt;</div>
+                        <div class="page-jumper">
+                            跳至
+                            <input type="text" value="1">
+                            页
+                        </div>
+                    </div>
+                    <div class="pagination-info">
+                        10条/页
+                        <button class="btn" style="height:28px;padding:0 8px;margin-left:8px;">确定</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="sidebar-menu.js"></script>
+    <script>
+        document.querySelectorAll('.filter-tag').forEach(tag => {
+            tag.addEventListener('click', function() {
+                // 获取同行的所有标签
+                const parent = this.parentElement;
+                const tags = parent.querySelectorAll('.filter-tag');
+                tags.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // 分页按钮点击
+        document.querySelectorAll('.page-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (this.classList.contains('disabled')) return;
+                document.querySelectorAll('.page-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // 全选功能
+        const selectAll = document.querySelector('thead .checkbox');
+        const rowCheckboxes = document.querySelectorAll('tbody .checkbox');
+        if (selectAll) {
+            selectAll.addEventListener('change', function() {
+                rowCheckboxes.forEach(cb => cb.checked = this.checked);
+            });
+        }
+    </script>
+</body>
+</html>
