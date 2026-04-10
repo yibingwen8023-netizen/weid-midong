@@ -75,7 +75,7 @@ const menuData = [
         label: '门店',
         children: [
             { label: '门店列表', href: 'store-list.html', tabs: [
-                { label: '门店列表' },
+                { label: '门店列表', href: 'store-list.html' },
                 { label: '门店列表(查询)' },
                 { label: '门店配置(查询)' },
                 { label: '门店配置' },
@@ -173,9 +173,20 @@ function renderSidebar(containerId) {
         }
         if (item.children) {
             item.children.forEach((child, cIdx) => {
+                // 直接匹配子菜单的 href
                 if (child.href && child.href === currentPage) {
                     activeParentIndex = pIdx;
                     activeChildIndex = cIdx;
+                }
+                // 也搜索子菜单 tabs 中的 href（如门店预约项目等在 tabs 里定义的页面）
+                if (child.tabs) {
+                    for (const tab of child.tabs) {
+                        if (tab.href && tab.href === currentPage) {
+                            activeParentIndex = pIdx;
+                            activeChildIndex = cIdx;
+                            break;
+                        }
+                    }
                 }
             });
         }
