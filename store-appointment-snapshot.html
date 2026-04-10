@@ -449,18 +449,31 @@
         /* 无快照提示 */
         .no-snapshot {
             text-align: center;
-            padding: 60px 0;
+            padding: 80px 0 60px;
             color: #999;
+            background: #fff;
+            border-radius: 2px;
+            box-shadow: 0 1px 2px 0 rgba(0,0,0,0.03), 0 1px 6px -1px rgba(0,0,0,0.02), 0 2px 4px 0 rgba(0,0,0,0.02);
         }
 
         .no-snapshot i {
-            font-size: 48px;
-            margin-bottom: 12px;
+            font-size: 64px;
+            color: #d9d9d9;
+            margin-bottom: 16px;
             display: block;
         }
 
-        .no-snapshot p {
-            font-size: 14px;
+        .no-snapshot .no-snapshot-title {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .no-snapshot .no-snapshot-desc {
+            font-size: 13px;
+            color: #bfbfbf;
+            line-height: 1.6;
         }
 
         /* 滚动条美化 */
@@ -523,47 +536,49 @@
                     <span class="filter-label">日期：</span>
                     <input type="date" class="filter-date-picker" id="filter-date-picker">
                 </div>
-                <div class="filter-row">
-                    <span class="filter-label">城市：</span>
-                    <div class="filter-options" id="city-filters">
-                        <span class="filter-tag active" data-city="全部">全部</span>
-                        <span class="filter-tag" data-city="上海市">上海市</span>
-                        <span class="filter-tag" data-city="厦门市">厦门市</span>
-                        <span class="filter-tag" data-city="南京市">南京市</span>
-                        <span class="filter-tag" data-city="泉州市">泉州市</span>
-                        <span class="filter-tag" data-city="武汉市">武汉市</span>
-                        <span class="filter-tag" data-city="杭州市">杭州市</span>
-                        <span class="filter-tag" data-city="广州市">广州市</span>
-                        <span class="filter-tag more">展开</span>
+                <div id="filter-details">
+                    <div class="filter-row">
+                        <span class="filter-label">城市：</span>
+                        <div class="filter-options" id="city-filters">
+                            <span class="filter-tag active" data-city="全部">全部</span>
+                            <span class="filter-tag" data-city="上海市">上海市</span>
+                            <span class="filter-tag" data-city="厦门市">厦门市</span>
+                            <span class="filter-tag" data-city="南京市">南京市</span>
+                            <span class="filter-tag" data-city="泉州市">泉州市</span>
+                            <span class="filter-tag" data-city="武汉市">武汉市</span>
+                            <span class="filter-tag" data-city="杭州市">杭州市</span>
+                            <span class="filter-tag" data-city="广州市">广州市</span>
+                            <span class="filter-tag more">展开</span>
+                        </div>
                     </div>
-                </div>
-                <div class="filter-row">
-                    <span class="filter-label">门店名称：</span>
-                    <div class="filter-options" id="store-filters">
-                        <span class="filter-tag active" data-store="全部">全部</span>
-                        <span class="filter-tag" data-store="上海徐汇店">上海徐汇店</span>
-                        <span class="filter-tag" data-store="厦门思明店">厦门思明店</span>
-                        <span class="filter-tag" data-store="南京秦淮轻医美店">南京秦淮轻医美店</span>
-                        <span class="filter-tag" data-store="泉州丰泽店">泉州丰泽店</span>
-                        <span class="filter-tag" data-store="武汉光谷店">武汉光谷店</span>
-                        <span class="filter-tag" data-store="杭州下城店">杭州下城店</span>
-                        <span class="filter-tag" data-store="广州天河店">广州天河店</span>
-                        <span class="filter-tag more">展开</span>
+                    <div class="filter-row">
+                        <span class="filter-label">门店名称：</span>
+                        <div class="filter-options" id="store-filters">
+                            <span class="filter-tag active" data-store="全部">全部</span>
+                            <span class="filter-tag" data-store="上海徐汇店">上海徐汇店</span>
+                            <span class="filter-tag" data-store="厦门思明店">厦门思明店</span>
+                            <span class="filter-tag" data-store="南京秦淮轻医美店">南京秦淮轻医美店</span>
+                            <span class="filter-tag" data-store="泉州丰泽店">泉州丰泽店</span>
+                            <span class="filter-tag" data-store="武汉光谷店">武汉光谷店</span>
+                            <span class="filter-tag" data-store="杭州下城店">杭州下城店</span>
+                            <span class="filter-tag" data-store="广州天河店">广州天河店</span>
+                            <span class="filter-tag more">展开</span>
+                        </div>
                     </div>
-                </div>
-                <div class="filter-row">
-                    <span class="filter-label">预约状态：</span>
-                    <select class="filter-select" id="project-filter">
-                        <option value="">请选择项目</option>
-                    </select>
-                    <select class="filter-select" id="status-filter">
-                        <option value="">请选择状态</option>
-                        <option value="可预约">可预约</option>
-                        <option value="不可预约">不可预约</option>
-                    </select>
-                    <div class="filter-actions">
-                        <button class="btn" id="btn-reset">重置</button>
-                        <button class="btn btn-primary" id="btn-search"><i class="ri-search-line"></i> 搜索</button>
+                    <div class="filter-row">
+                        <span class="filter-label">预约状态：</span>
+                        <select class="filter-select" id="project-filter">
+                            <option value="">请选择项目</option>
+                        </select>
+                        <select class="filter-select" id="status-filter">
+                            <option value="">请选择状态</option>
+                            <option value="可预约">可预约</option>
+                            <option value="不可预约">不可预约</option>
+                        </select>
+                        <div class="filter-actions">
+                            <button class="btn" id="btn-reset">重置</button>
+                            <button class="btn btn-primary" id="btn-search"><i class="ri-search-line"></i> 搜索</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -697,7 +712,8 @@
         // ===== 全局状态 =====
         let allSnapshots = generateSnapshots();
         let availableDates = Object.keys(allSnapshots).sort().reverse();
-        let currentDate = availableDates[0];
+        let today = formatDate(new Date());
+        let currentDate = today; // 默认显示今天（通常无快照）
         let filterCity = '全部';
         let filterStore = '全部';
         let filterProject = '';
@@ -706,34 +722,44 @@
         // ===== 筛选区域日期选择 =====
         function initDatePicker() {
             const datePicker = document.getElementById('filter-date-picker');
-            const allDates = Object.keys(allSnapshots).sort();
-            if (allDates.length > 0) {
-                datePicker.min = allDates[0];
-                datePicker.max = allDates[allDates.length - 1];
-            }
             datePicker.value = currentDate;
 
             datePicker.addEventListener('change', function() {
-                const selected = this.value;
-                if (allSnapshots[selected]) {
-                    currentDate = selected;
-                    renderCurrentSnapshot();
-                }
+                currentDate = this.value;
+                renderCurrentSnapshot();
             });
         }
 
         // ===== 渲染当前快照 =====
         function renderCurrentSnapshot() {
-            if (!currentDate || !allSnapshots[currentDate]) {
-                document.getElementById('table-body').innerHTML = `
-                    <tr><td colspan="14">
-                        <div class="no-snapshot">
-                            <i class="ri-camera-off-line"></i>
-                            <p>该日期暂无快照数据</p>
-                        </div>
-                    </td></tr>`;
+            const filterDetails = document.getElementById('filter-details');
+            const tableSection = document.querySelector('.table-section');
+            const hasData = currentDate && allSnapshots[currentDate];
+
+            // 根据是否有数据显示/隐藏筛选详情和表格
+            filterDetails.style.display = hasData ? '' : 'none';
+            tableSection.style.display = hasData ? '' : 'none';
+
+            if (!hasData) {
+                // 无数据时在筛选区域下方显示空状态
+                let emptyState = document.getElementById('empty-state');
+                if (!emptyState) {
+                    emptyState = document.createElement('div');
+                    emptyState.id = 'empty-state';
+                    document.querySelector('.content').insertBefore(emptyState, tableSection);
+                }
+                emptyState.innerHTML = `
+                    <div class="no-snapshot">
+                        <i class="ri-camera-off-line"></i>
+                        <p class="no-snapshot-title">该日期暂无快照数据</p>
+                        <p class="no-snapshot-desc">快照每天 00:00 自动生成，请选择已有快照的日期查看</p>
+                    </div>`;
                 return;
             }
+
+            // 有数据时移除空状态
+            const emptyState = document.getElementById('empty-state');
+            if (emptyState) emptyState.remove();
 
             const currentSnapshot = allSnapshots[currentDate];
             const tbody = document.getElementById('table-body');
