@@ -719,7 +719,8 @@
         let allSnapshots = generateSnapshots();
         let availableDates = Object.keys(allSnapshots).sort().reverse();
         let today = formatDate(new Date());
-        let currentDate = today; // 默认显示今天（通常无快照）
+        const _yesterday = new Date(); _yesterday.setDate(_yesterday.getDate() - 1);
+        let currentDate = formatDate(_yesterday); // 默认显示昨天
         let filterCity = '全部';
         let filterStore = '全部';
         let filterProject = '';
@@ -728,6 +729,10 @@
         // ===== 筛选区域日期选择 =====
         function initDatePicker() {
             const datePicker = document.getElementById('filter-date-picker');
+            // 计算昨天作为最大可选日期
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            datePicker.max = formatDate(yesterday);
             datePicker.value = currentDate;
 
             datePicker.addEventListener('change', function() {
@@ -758,7 +763,7 @@
                     <div class="no-snapshot">
                         <i class="ri-camera-off-line"></i>
                         <p class="no-snapshot-title">该日期暂无快照数据</p>
-                        <p class="no-snapshot-desc">快照每天 00:00 自动生成，请选择已有快照的日期查看</p>
+                        <p class="no-snapshot-desc">快照每天自动生成，请选择已有快照的日期查看</p>
                     </div>`;
                 return;
             }
